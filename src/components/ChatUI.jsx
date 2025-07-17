@@ -8,18 +8,17 @@ function ChatUI() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Update this URL to your backend's Render URL
-    const backendURL = 'https://chatbot1back.onrender.com/chat';
+    const messageToSend = input;
+    setMessages(prev => [...prev, { type: 'user', text: messageToSend }]);
+    setInput('');  // Clear input immediately
 
-    const res = await axios.post(backendURL, { message: input });
+    try {
+      const res = await axios.post('https://chatbot1back.onrender.com/chat', { message: messageToSend });
 
-    setMessages([
-      ...messages,
-      { type: 'user', text: input },
-      { type: 'bot', text: res.data.reply }
-    ]);
-
-    setInput('');
+      setMessages(prev => [...prev, { type: 'bot', text: res.data.reply }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { type: 'bot', text: 'Error: Unable to get reply.' }]);
+    }
   };
 
   return (
@@ -39,13 +38,14 @@ function ChatUI() {
           </div>
         ))}
       </div>
+
       <div style={{ display: 'flex' }}>
         <input
           style={{ flexGrow: 1, padding: '10px', borderRadius: '10px 0 0 10px' }}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
-          placeholder="Type message..."
+          placeholder="Type your message..."
         />
         <button
           style={{
