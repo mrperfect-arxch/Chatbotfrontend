@@ -4,13 +4,15 @@ import axios from 'axios';
 function ChatUI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
     const messageToSend = input;
     setMessages(prev => [...prev, { type: 'user', text: messageToSend }]);
-    setInput('');  // Clear input immediately
+    setInput('');
+    setIsTyping(true);
 
     try {
       const res = await axios.post('https://chatbot1back.onrender.com/chat', { message: messageToSend });
@@ -19,6 +21,8 @@ function ChatUI() {
     } catch (error) {
       setMessages(prev => [...prev, { type: 'bot', text: 'Error: Unable to get reply.' }]);
     }
+
+    setIsTyping(false);
   };
 
   return (
@@ -37,6 +41,21 @@ function ChatUI() {
             </span>
           </div>
         ))}
+
+        {isTyping && (
+          <div style={{ marginBottom: '10px', textAlign: 'left' }}>
+            <span style={{
+              display: 'inline-block',
+              padding: '10px 15px',
+              borderRadius: '20px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              fontStyle: 'italic'
+            }}>
+              Typing...
+            </span>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex' }}>
